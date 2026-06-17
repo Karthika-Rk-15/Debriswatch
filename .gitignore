@@ -1,0 +1,27 @@
+# Environment variables
+.env
+
+# Python cache
+__pycache__
+.py[cod]
+$py.class
+
+# Virtual environments
+venv
+.venv
+env
+
+# VS Code
+.vscode
+
+# Generated data files
+datatles.json
+dataadvisories.json
+datadecisions.jsonl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+.log

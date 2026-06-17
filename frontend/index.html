@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DebrisWatch.AI — Orbital Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg0:#030812;
+  --bg1:#060d1a;
+  --bg2:#0a1628;
+  --bg3:#0f1f38;
+  --bg4:#152844;
+  --border:#1a2f50;
+  --border2:#1e3660;
+  --cyan:#00d4ff;
+  --cyan2:#00a8cc;
+  --cyan3:#006d88;
+  --cyan-glow:rgba(0,212,255,0.15);
+  --text:#e8f4fd;
+  --text2:#7a9bbf;
+  --text3:#3d5a7a;
+  --critical:#ff3b3b;
+  --critical-bg:rgba(255,59,59,0.1);
+  --moderate:#f5a623;
+  --moderate-bg:rgba(245,166,35,0.1);
+  --safe:#00e676;
+  --safe-bg:rgba(0,230,118,0.1);
+  --mono:'Space Mono',monospace;
+  --sans:'Inter',sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--text);font-family:var(--sans);font-size:14px;overflow-x:hidden;min-height:100vh}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;
+  background:rgba(3,8,18,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;background:none;border:none}
+.nav-logo{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--cyan3),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.nav-name{font-family:var(--mono);font-size:14px;letter-spacing:.02em}
+.nav-name span{color:var(--cyan)}
+.nav-sub{font-size:9px;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-top:-2px}
+.nav-links{display:flex;gap:4px}
+.nav-link{
+  padding:6px 14px;border-radius:6px;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text2);cursor:pointer;
+  border:none;background:transparent;font-family:var(--sans);
+  transition:color .2s,background .2s;
+}
+.nav-link:hover,.nav-link.active{color:var(--cyan);background:var(--cyan-glow)}
+.nav-launch{
+  padding:8px 18px;border-radius:8px;font-size:12px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--bg0);cursor:pointer;border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  font-family:var(--sans);font-weight:600;
+  display:flex;align-items:center;gap:6px;
+  transition:opacity .2s,transform .15s;
+}
+.nav-launch:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ── PAGES ── */
+.page{display:none;padding-top:60px;min-height:100vh}
+.page.active{display:block}
+
+/* ── LIVE BADGE ── */
+.live-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:20px;
+  background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);
+  font-size:11px;color:var(--safe);letter-spacing:.08em;font-family:var(--mono);
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(0,230,118,0)}}
+
+/* ── SECTION EYEBROW ── */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:4px 12px;border-radius:20px;
+  background:var(--cyan-glow);border:1px solid rgba(0,212,255,0.2);
+  font-size:10px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;
+  font-family:var(--mono);margin-bottom:16px;
+}
+.eyebrow::before{content:'◉';font-size:8px}
+
+/* ── HERO (MISSION) ── */
+#page-mission{
+  background:radial-gradient(ellipse 80% 60% at 70% 40%,rgba(0,100,150,0.12),transparent),
+             radial-gradient(ellipse 50% 80% at 20% 80%,rgba(0,50,100,0.1),transparent),
+             var(--bg0);
+}
+.hero{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:calc(100vh - 60px);padding:80px 60px 40px;gap:60px;
+  align-items:center;
+}
+.hero-left{max-width:600px}
+.hero-title{font-size:58px;font-weight:700;line-height:1.05;margin:20px 0 20px}
+.hero-title .accent{color:var(--cyan)}
+.hero-desc{font-size:16px;color:var(--text2);line-height:1.7;margin-bottom:36px;max-width:480px}
+.hero-btns{display:flex;gap:14px;margin-bottom:60px}
+.btn-primary{
+  padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;
+  background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  color:var(--bg0);border:none;cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:transform .15s,opacity .2s;
+}
+.btn-primary:hover{transform:translateY(-2px);opacity:.92}
+.btn-secondary{
+  padding:12px 24px;border-radius:8px;font-size:13px;font-weight:500;
+  background:transparent;color:var(--text2);
+  border:1px solid var(--border2);cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:border-color .2s,color .2s;
+}
+.btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hstat{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;
+}
+.hstat-val{font-size:22px;font-weight:700;color:var(--text);font-family:var(--mono)}
+.hstat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+
+.hero-right{position:relative;display:flex;align-items:center;justify-content:center}
+#hero-canvas{width:100%;max-width:520px;height:520px}
+.orbit-label{
+  position:absolute;padding:6px 12px;border-radius:8px;
+  background:rgba(10,22,40,0.9);border:1px solid var(--border2);
+  font-size:11px;font-family:var(--mono);
+}
+.orbit-label .ol-sub{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
+.orbit-label-1{top:22%;right:5%}
+.orbit-label-2{bottom:20%;right:8%;font-size:10px;color:var(--cyan)}
+.orbit-label-2 .ol-val{font-size:18px;font-weight:700;color:var(--text);font-family:var(--mono)}
+
+/* ── MISSION CONTROL summary ── */
+.mc-section{padding:60px;background:var(--bg0)}
+.mc-header{margin-bottom:40px}
+.mc-title{font-size:40px;font-weight:700;line-height:1.1}
+.mc-title .accent{color:var(--cyan)}
+.mc-desc{color:var(--text2);margin-top:12px;font-size:15px;max-width:600px;line-height:1.6}
+.mc-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.mc-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:20px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;
+}
+.mc-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.mc-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+}
+.mc-card-icon{font-size:20px;margin-bottom:12px;color:var(--cyan)}
+.mc-delta{position:absolute;top:16px;right:16px;font-size:11px;font-family:var(--mono)}
+.mc-delta.up{color:var(--safe)}
+.mc-delta.down{color:var(--critical)}
+.mc-val{font-size:32px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.mc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:6px}
+
+/* ── TRACKING PAGE ── */
+.tracking-layout{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 60px)}
+.tracking-main{padding:40px;border-right:1px solid var(--border)}
+.tracking-sidebar{padding:24px}
+
+.globe-wrap{
+  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:20px;margin-bottom:24px;position:relative;
+}
+.globe-legend{display:flex;gap:20px;margin-bottom:16px}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+#tracking-canvas{width:100%;height:380px;display:block}
+
+.object-table{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.tbl-header{
+  display:grid;grid-template-columns:90px 70px 90px 80px 100px 80px;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;
+}
+.tbl-row{
+  display:grid;grid-template-columns:90px 70px 90px 80px 100px 80px;
+  padding:12px 20px;border-bottom:1px solid rgba(26,47,80,0.5);
+  font-size:12px;font-family:var(--mono);
+  transition:background .15s;cursor:pointer;
+}
+.tbl-row:hover{background:var(--bg3)}
+.tbl-row:last-child{border-bottom:none}
+.risk-pill{
+  display:inline-block;padding:3px 9px;border-radius:4px;
+  font-size:10px;font-weight:600;letter-spacing:.05em;
+}
+.risk-pill.CRITICAL{background:var(--critical-bg);color:var(--critical);border:1px solid rgba(255,59,59,0.3)}
+.risk-pill.MODERATE{background:var(--moderate-bg);color:var(--moderate);border:1px solid rgba(245,166,35,0.3)}
+.risk-pill.SAFE{background:var(--safe-bg);color:var(--safe);border:1px solid rgba(0,230,118,0.3)}
+
+.sidebar-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:12px;
+}
+.sidebar-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-family:var(--mono)}
+.sidebar-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.sidebar-sub{font-size:12px;color:var(--text2);margin-top:4px}
+.sidebar-card.critical-card{border-color:rgba(255,59,59,0.3);background:rgba(255,59,59,0.05)}
+
+/* ── PREDICTIONS PAGE ── */
+.pred-layout{padding:40px 60px}
+.pred-header{margin-bottom:36px}
+.pred-title{font-size:40px;font-weight:700}
+.pred-title .accent{color:var(--cyan)}
+.pred-desc{color:var(--text2);margin-top:12px;font-size:15px;line-height:1.6}
+
+.pred-grid{display:grid;grid-template-columns:1fr 340px;gap:24px}
+.conj-table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.conj-table-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;
+}
+.conj-filter{font-size:11px;color:var(--text2)}
+.conj-cols{
+  display:grid;grid-template-columns:160px 100px 80px 80px 90px 100px;
+  padding:10px 20px;border-bottom:1px solid var(--border);
+  font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;
+}
+.conj-row{
+  display:grid;grid-template-columns:160px 100px 80px 80px 90px 100px;
+  padding:14px 20px;border-bottom:1px solid rgba(26,47,80,0.5);
+  font-size:12px;font-family:var(--mono);align-items:center;
+  transition:background .15s;cursor:pointer;
+}
+.conj-row:hover{background:var(--bg3)}
+.conj-row:last-child{border-bottom:none}
+
+.pred-sidebar{display:flex;flex-direction:column;gap:16px}
+.risk-donut-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
+.donut-title{font-size:13px;font-weight:600;margin-bottom:16px}
+#donut-canvas{display:block;margin:0 auto}
+.donut-legend{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.donut-leg{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.donut-leg-left{display:flex;align-items:center;gap:8px;color:var(--text2)}
+.donut-leg-dot{width:10px;height:10px;border-radius:50%}
+.donut-leg-pct{font-family:var(--mono);font-weight:600}
+
+.prob-timeline-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;flex:1}
+.ptl-title{font-size:13px;font-weight:600;margin-bottom:16px}
+
+/* ── AI AGENT PAGE ── */
+.agent-page-inner{padding:60px}
+.agent-header{margin-bottom:40px}
+.agent-title{font-size:40px;font-weight:700;line-height:1.1}
+.agent-title .accent{color:var(--cyan)}
+.agent-desc{color:var(--text2);margin-top:12px;font-size:15px;line-height:1.6;max-width:500px}
+
+.agent-feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.afc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s}
+.afc:hover{border-color:var(--border2)}
+.afc-icon{font-size:22px;margin-bottom:12px}
+.afc-title{font-size:14px;font-weight:600;margin-bottom:8px}
+.afc-text{font-size:12px;color:var(--text2);line-height:1.6}
+
+.safety-score-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.ss-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono)}
+.ss-val{font-size:52px;font-weight:700;font-family:var(--mono);color:var(--text);line-height:1}
+.ss-sub{font-size:12px;color:var(--safe);margin-top:8px}
+.ss-bar{height:6px;background:var(--bg3);border-radius:3px;margin-top:12px;overflow:hidden}
+.ss-fill{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--safe));transition:width 1s ease}
+
+.insight-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.insight-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);margin-bottom:12px}
+.insight-text{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px}
+.insight-text strong{color:var(--critical)}
+.insight-text em{color:var(--cyan);font-style:normal}
+.approve-btn{
+  width:100%;padding:12px;border-radius:8px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  color:var(--bg0);font-weight:700;font-size:13px;letter-spacing:.05em;
+  transition:opacity .2s,transform .15s;
+}
+.approve-btn:hover{opacity:.9;transform:translateY(-1px)}
+.approve-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.satellite-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .2s}
+.sat-card:hover{border-color:var(--border2)}
+.sat-id{font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:6px}
+.sat-name{font-size:13px;font-weight:600;margin-bottom:12px}
+.sat-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px}
+.sat-row-label{color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.sat-row-val{font-family:var(--mono);color:var(--text2)}
+.sat-health{margin-top:10px}
+.sat-health-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:flex;justify-content:space-between}
+.health-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.health-fill{height:4px;border-radius:2px}
+.sat-btns{display:flex;gap:8px;margin-top:12px}
+.sat-btn{flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:border-color .15s,color .15s}
+.sat-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── ANALYTICS PAGE ── */
+.analytics-page-inner{padding:40px 60px}
+.analytics-title{font-size:40px;font-weight:700;margin-bottom:8px}
+.analytics-title .accent{color:var(--cyan)}
+.analytics-desc{color:var(--text2);font-size:15px;line-height:1.6;margin-bottom:36px}
+
+.catalog-section{margin-bottom:36px}
+.cat-table{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.cat-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.cat-filter{
+  padding:6px 14px;border-radius:6px;font-size:11px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;
+  font-family:var(--sans);
+}
+.cat-filter.active,.cat-filter:hover{background:var(--cyan-glow);border-color:var(--cyan);color:var(--cyan)}
+.cat-search{
+  margin-left:auto;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);font-size:12px;font-family:var(--mono);
+  width:180px;outline:none;
+}
+.cat-search:focus{border-color:var(--cyan)}
+.cat-cols{
+  display:grid;grid-template-columns:100px 70px 90px 80px 100px 90px;
+  padding:10px 20px;border-bottom:1px solid var(--border);
+  font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;
+}
+.cat-row{
+  display:grid;grid-template-columns:100px 70px 90px 80px 100px 90px;
+  padding:12px 20px;border-bottom:1px solid rgba(26,47,80,0.4);
+  font-size:12px;font-family:var(--mono);align-items:center;
+  transition:background .15s;cursor:pointer;
+}
+.cat-row:hover{background:var(--bg3)}
+.cat-row:last-child{border-bottom:none}
+.cat-row.hidden{display:none}
+
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:16px}
+canvas.chart{display:block;width:100%}
+
+.alerts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alert-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:10px;cursor:pointer;transition:opacity .2s}
+.alert-item:hover{opacity:.85}
+.alert-item.crit{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.25)}
+.alert-item.mod{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25)}
+.alert-left{display:flex;align-items:center;gap:10px}
+.alert-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.alert-title{font-size:13px;font-weight:500}
+.alert-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.alert-arrow{color:var(--text3);font-size:16px}
+
+/* ── CONSOLE ── */
+.console-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:calc(100vh - 60px)}
+.console-left{padding:24px;border-right:1px solid var(--border)}
+.console-right{padding:24px}
+.console-nav{display:flex;gap:4px;margin-bottom:24px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px}
+.cnav-btn{
+  flex:1;padding:8px;border-radius:6px;border:none;background:transparent;
+  color:var(--text2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;font-family:var(--sans);transition:all .15s;
+}
+.cnav-btn.active,.cnav-btn:hover{background:var(--bg3);color:var(--cyan)}
+
+.console-stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.cstat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center}
+.cstat-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+.cstat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+
+.console-globe-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;margin-bottom:16px}
+#console-canvas{width:100%;height:280px;display:block}
+.closest-badge{
+  position:absolute;bottom:20px;right:20px;
+  background:rgba(255,59,59,0.15);border:1px solid rgba(255,59,59,0.4);
+  border-radius:8px;padding:8px 12px;font-family:var(--mono);
+}
+.closest-val{font-size:16px;font-weight:700;color:var(--critical)}
+.closest-sub{font-size:10px;color:var(--text2);margin-top:2px}
+
+.conj-table-console{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.ctc-header{
+  display:grid;grid-template-columns:140px 80px 90px 70px 90px 70px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;
+}
+.ctc-row{
+  display:grid;grid-template-columns:140px 80px 90px 70px 90px 70px;
+  padding:11px 16px;border-bottom:1px solid rgba(26,47,80,0.5);
+  font-size:11px;font-family:var(--mono);align-items:center;cursor:pointer;
+  transition:background .15s;
+}
+.ctc-row:hover{background:var(--bg3)}
+.ctc-row:last-child{border-bottom:none}
+.ctc-row.injected{animation:flashRow 1.2s ease 2}
+@keyframes flashRow{0%,100%{background:transparent}50%{background:rgba(255,59,59,0.15)}}
+
+.risk-chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.rcc-title{font-size:12px;font-weight:600;margin-bottom:12px}
+
+.debris-density-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.ddc-title{font-size:12px;font-weight:600;margin-bottom:12px}
+
+/* ── inject button + toast ── */
+.inject-zone{margin-bottom:16px}
+.inject-btn{
+  width:100%;padding:10px;background:rgba(255,59,59,0.1);border:1px solid var(--critical);
+  border-radius:8px;color:var(--critical);font-family:var(--mono);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.05em;
+}
+.inject-btn:hover{background:var(--critical);color:#fff}
+.inject-btn:disabled{opacity:.5;cursor:not-allowed}
+.toast{
+  position:fixed;top:76px;right:20px;background:rgba(255,59,59,0.12);
+  border:1px solid var(--critical);border-radius:10px;padding:14px 18px;
+  font-size:13px;color:#ffb3b3;z-index:1000;max-width:340px;
+  animation:toastIn .3s ease;font-family:var(--sans);
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-title{font-weight:700;margin-bottom:4px;color:var(--critical)}
+.toast-body{color:var(--text2);font-size:12px;line-height:1.5}
+
+/* ── REPORT ── */
+.report-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-top:32px}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.report-left h3{font-size:22px;font-weight:700;margin-bottom:8px}
+.report-left p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.report-btns{display:flex;gap:10px}
+.report-btn{
+  padding:8px 16px;border-radius:6px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:var(--sans);transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.report-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.report-preview{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8}
+.rp-section{color:var(--text3);margin-bottom:4px}
+.rp-critical{color:var(--critical)}
+.rp-safe{color:var(--safe)}
+.rp-cyan{color:var(--cyan)}
+
+/* ── FOOTER ── */
+footer{background:var(--bg1);border-top:1px solid var(--border);padding:40px 60px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:40px}
+.footer-brand p{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.6;max-width:220px}
+.status-chip{
+  display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:5px 10px;border-radius:20px;
+  background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);
+  font-size:10px;color:var(--safe);letter-spacing:.08em;font-family:var(--mono);
+}
+.footer-col h4{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.footer-col a{display:block;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:10px;transition:color .15s;cursor:pointer}
+.footer-col a:hover{color:var(--cyan)}
+
+@media (max-width:1100px){
+  .hero{grid-template-columns:1fr;padding:40px 24px}
+  .mc-cards{grid-template-columns:repeat(2,1fr)}
+  .tracking-layout,.console-layout,.pred-grid,.analytics-grid,.agent-feature-cards,.satellite-cards,.report-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="nav-brand" onclick="showPage('mission')">
+    <div class="nav-logo">🛰</div>
+    <div>
+      <div class="nav-name"><span>DEBRISWATCH.AI</span></div>
+      <div class="nav-sub">Orbital Intelligence</div>
+    </div>
+  </button>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('mission')">Mission</button>
+    <button class="nav-link" onclick="showPage('tracking')">Tracking</button>
+    <button class="nav-link" onclick="showPage('predictions')">Predictions</button>
+    <button class="nav-link" onclick="showPage('aiagent')">AI Agent</button>
+    <button class="nav-link" onclick="showPage('analytics')">Analytics</button>
+  </div>
+  <button class="nav-launch" onclick="showPage('console')">🚀 Launch Console</button>
+</nav>
+
+<!-- ════════ MISSION ════════ -->
+<div id="page-mission" class="page active">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="live-badge"><span class="live-dot"></span>LIVE TELEMETRY · 36,521 OBJECTS TRACKED</div>
+      <h1 class="hero-title">Protecting<br><span class="accent">Satellites</span><br>from Space Debris</h1>
+      <p class="hero-desc">AI-powered orbital intelligence platform for real-time debris tracking, collision prediction, and mission safety — built for the operators keeping our skies open.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('console')">🚀 Launch Dashboard →</button>
+        <button class="btn-secondary" onclick="showPage('tracking')">⊙ View Live Simulation</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-val">36,500+</div><div class="hstat-lbl">Tracked Objects</div></div>
+        <div class="hstat"><div class="hstat-val">9,000+</div><div class="hstat-lbl">Active Satellites</div></div>
+        <div class="hstat"><div class="hstat-val">1,000,000</div><div class="hstat-lbl">Debris Fragments</div></div>
+        <div class="hstat"><div class="hstat-val">99%</div><div class="hstat-lbl">Prediction Accuracy</div></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <canvas id="hero-canvas"></canvas>
+      <div class="orbit-label orbit-label-1">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Orbit Class</div>
+        <div class="ol-sub">LEO · 550 km</div>
+      </div>
+      <div class="orbit-label orbit-label-2">
+        <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;font-family:var(--mono)">TELEMETRY</div>
+        <div class="ol-val">7.66 km/s</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mc-section">
+    <div class="eyebrow">Mission Control</div>
+    <div class="mc-header">
+      <div class="mc-title">Real-time <span class="accent">operational telemetry</span></div>
+      <p class="mc-desc">A unified mission-control surface aggregating every tracked object, satellite, and risk event into a single decision pane.</p>
+    </div>
+    <div class="mc-cards">
+      <div class="mc-card"><div class="mc-card-icon">🛰</div><span class="mc-delta up">+24</span><div class="mc-val" id="hp-sats">8,742</div><div class="mc-lbl">Active Satellites</div></div>
+      <div class="mc-card"><div class="mc-card-icon">⟳</div><span class="mc-delta up">+182</span><div class="mc-val" id="hp-debris">34,219</div><div class="mc-lbl">Tracked Debris</div></div>
+      <div class="mc-card"><div class="mc-card-icon">⚠</div><span class="mc-delta down">−3</span><div class="mc-val" id="hp-highrisk">17</div><div class="mc-lbl">High-Risk Events</div></div>
+      <div class="mc-card"><div class="mc-card-icon">🔴</div><span class="mc-delta up" id="hp-warn-delta">+1</span><div class="mc-val" id="hp-warnings">4</div><div class="mc-lbl">Collision Warnings</div></div>
+      <div class="mc-card"><div class="mc-card-icon">⚡</div><span class="mc-delta up" id="hp-man-delta">+5</span><div class="mc-val" id="hp-maneuvers">12</div><div class="mc-lbl">Maneuvers Suggested</div></div>
+    </div>
+  </div>
+
+  <div style="padding:60px;background:var(--bg1);border-top:1px solid var(--border)">
+    <div class="eyebrow">The Problem</div>
+    <h2 style="font-size:36px;font-weight:700;margin-bottom:36px">Earth's orbit is <span style="color:var(--cyan)">getting crowded</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:48px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px">
+        <div style="font-size:20px;margin-bottom:12px">⟳</div>
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:8px">What is Space Debris?</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Defunct satellites, rocket fragments, and collision-generated particles orbiting Earth at velocities exceeding 7 km/s — each a kinetic threat to active spacecraft.</p>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px">
+        <div style="font-size:20px;margin-bottom:12px">⚠</div>
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:8px">Why It Matters</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Even a 1cm fragment carries the kinetic energy of a grenade. A single collision can disable a billion-dollar mission and trigger the Kessler Syndrome cascade.</p>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px">
+        <div style="font-size:20px;margin-bottom:12px">🛡</div>
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:8px">Our Solution</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">DebrisWatch AI continuously monitors orbital objects, predicts collision risks, and provides intelligent avoidance recommendations — autonomously, 24/7.</p>
+      </div>
+    </div>
+    <div class="eyebrow">Technology</div>
+    <h2 style="font-size:36px;font-weight:700;margin-bottom:28px">Built on a <span style="color:var(--cyan)">modern aerospace stack</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Orbital Mechanics</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2">Skyfield<br>Celestrak TLE<br>SGP4 Propagation</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Frontend</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2">HTML5 Canvas<br>Vanilla JS<br>Server-Sent Events</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Backend</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2">FastAPI<br>SSE Streaming<br>JSONL Audit Log</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">AI / Agent</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2">Claude Sonnet 4.6<br>Autonomous Tool-Calling<br>Risk Classification</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-brand">
+      <div class="nav-name" style="font-size:15px">DEBRISWATCH<span style="color:var(--cyan)">.AI</span></div>
+      <p>AI-powered orbital intelligence for satellite operators and space agencies. Built for FAR AWAY 2026.</p>
+      <div class="status-chip"><span class="live-dot"></span>ALL MONITORING SYSTEMS OPERATIONAL</div>
+    </div>
+    <div class="footer-col"><h4>Mission</h4><a onclick="showPage('mission')">Mission Status</a><a onclick="showPage('console')">Operations</a><a onclick="showPage('analytics')">Roadmap</a></div>
+    <div class="footer-col"><h4>Resources</h4><a>Documentation</a><a>API Access</a><a>Whitepaper</a></div>
+    <div class="footer-col"><h4>Connect</h4><a>Contact</a><a>GitHub Repository</a><a>Security</a></div>
+  </footer>
+</div>
+
+<!-- ════════ TRACKING ════════ -->
+<div id="page-tracking" class="page">
+  <div class="tracking-layout">
+    <div class="tracking-main">
+      <div class="eyebrow">3D Situational Awareness</div>
+      <h2 style="font-size:32px;font-weight:700;margin-bottom:6px">3D situational awareness <span style="color:var(--cyan)">around<br>the globe</span></h2>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:24px">Visualize active satellites, debris fragments, and orbital paths with color-coded risk classification.</p>
+
+      <div class="globe-wrap">
+        <div class="globe-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--safe)"></div>Safe</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--moderate)"></div>Moderate</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--critical)"></div>High Risk</div>
+        </div>
+        <canvas id="tracking-canvas"></canvas>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">34,000+ objects, <span style="color:var(--cyan)">cataloged &amp; queryable</span></div>
+      <div class="object-table">
+        <div class="tbl-header"><span>Object ID</span><span>Size</span><span>Speed</span><span>Orbit</span><span>Threat</span><span>Last Seen</span></div>
+        <div id="tracking-tbody"></div>
+      </div>
+    </div>
+
+    <div class="tracking-sidebar">
+      <div class="sidebar-card critical-card">
+        <div class="sidebar-label">Object Spotlight</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">SAT-12 · STARLINK</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Altitude 547 km · Inclination 53°</div>
+        <div class="risk-pill CRITICAL">CRITICAL</div>
+      </div>
+      <div class="sidebar-card critical-card">
+        <div class="sidebar-label">Closest Conjunction</div>
+        <div class="sidebar-val" id="closest-dist">450 m</div>
+        <div class="sidebar-sub" id="closest-time">in 18h 04m</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">Debris fragment D-4721</div>
+        <div class="risk-pill CRITICAL" style="margin-top:8px">CRITICAL</div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-label">Sector Activity</div>
+        <div class="sidebar-val" style="font-size:20px">LEO 500–800 km</div>
+        <div class="sidebar-sub" style="margin-top:6px">82 active · 1,204 debris</div>
+        <div class="risk-pill MODERATE" style="margin-top:8px">MODERATE</div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-label">Orbital Zones</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text2)">LEO (200–2,000 km)</span><span style="font-family:var(--mono);color:var(--critical)">HIGH</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text2)">MEO (2,000–36,000 km)</span><span style="font-family:var(--mono);color:var(--moderate)">MOD</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text2)">GEO (36,000 km)</span><span style="font-family:var(--mono);color:var(--safe)">SAFE</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PREDICTIONS ════════ -->
+<div id="page-predictions" class="page">
+  <div class="pred-layout">
+    <div class="pred-header">
+      <div class="eyebrow">Collision Prediction Engine</div>
+      <div class="pred-title">Forecasting risk <span class="accent">before it<br>happens</span></div>
+      <p class="pred-desc">Hybrid LLM reasoning + orbital mechanics models score every active conjunction with calibrated probability and full explainable reasoning.</p>
+    </div>
+    <div class="pred-grid">
+      <div class="conj-table-wrap">
+        <div class="conj-table-header">Active Conjunctions · Next 72h<span class="conj-filter" id="pred-count">6 events</span></div>
+        <div class="conj-cols"><span>Satellite</span><span>Debris</span><span>Prob.</span><span>Dist (m)</span><span>Risk</span><span>Action</span></div>
+        <div id="pred-tbody"></div>
+      </div>
+      <div class="pred-sidebar">
+        <div class="risk-donut-card">
+          <div class="donut-title">Risk Distribution</div>
+          <canvas id="donut-canvas" width="160" height="160"></canvas>
+          <div class="donut-legend">
+            <div class="donut-leg"><div class="donut-leg-left"><div class="donut-leg-dot" style="background:var(--safe)"></div>Safe</div><span class="donut-leg-pct" style="color:var(--safe)">78%</span></div>
+            <div class="donut-leg"><div class="donut-leg-left"><div class="donut-leg-dot" style="background:var(--moderate)"></div>Moderate</div><span class="donut-leg-pct" style="color:var(--moderate)">17%</span></div>
+            <div class="donut-leg"><div class="donut-leg-left"><div class="donut-leg-dot" style="background:var(--critical)"></div>Critical</div><span class="donut-leg-pct" style="color:var(--critical)">5%</span></div>
+          </div>
+        </div>
+        <div class="prob-timeline-card">
+          <div class="ptl-title">Probability Timeline</div>
+          <canvas id="timeline-canvas" width="280" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ AI AGENT ════════ -->
+<div id="page-aiagent" class="page">
+  <div class="agent-page-inner">
+    <div class="agent-header">
+      <div class="eyebrow">AI Mission Control Agent</div>
+      <div class="agent-title">An autonomous agent <span class="accent">watching<br>every orbit</span></div>
+      <p class="agent-desc">Generative recommendations grounded in physics — explainable, auditable, and ready for operator approval. This is the live brain of DebrisWatch.</p>
+    </div>
+
+    <div class="inject-zone" style="max-width:400px">
+      <button class="inject-btn" id="inject-btn" onclick="injectConjunction()">⚡ Inject Critical Conjunction (Demo)</button>
+    </div>
+
+    <div class="agent-feature-cards">
+      <div class="afc"><div class="afc-icon">🎯</div><div class="afc-title">Threat Analysis</div><div class="afc-text" id="afc-threat">Debris object D-4721 will pass within 450 m of SAT-12 in 18h. Fragmentation risk severe. Closing velocity 14.6 km/s.</div></div>
+      <div class="afc"><div class="afc-icon">⚡</div><div class="afc-title">Risk Explanation</div><div class="afc-text" id="afc-risk">Recent solar activity has perturbed object's orbit by 0.03°. Monte Carlo simulation (10⁵ runs) yields 8.2 × 10⁻³ collision probability.</div></div>
+      <div class="afc"><div class="afc-icon">🔧</div><div class="afc-title">Suggested Maneuver</div><div class="afc-text" id="afc-maneuver">Recommended: +1.8 km altitude increase via 12s prograde burn, Δv 4.2 m/s. Fuel cost 0.6%. Post-maneuver probability &lt; 10⁻⁵.</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:24px">
+      <div>
+        <div class="safety-score-card">
+          <div class="ss-label">Mission Safety Score</div>
+          <div class="ss-val" id="ss-score">96.4 <span style="font-size:24px;color:var(--text2)">/ 100</span></div>
+          <div class="ss-sub" id="ss-sub">All systems nominal</div>
+          <div class="ss-bar"><div class="ss-fill" id="ss-fill" style="width:96.4%"></div></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-label">AI Insight</div>
+          <div class="insight-text" id="ai-insight-text">Debris <strong>D-4721</strong> will pass within <em>450 m</em> of SAT-12 in 18h. Recommended: <em>+1.8 km altitude burn.</em></div>
+          <button class="approve-btn" id="approve-btn" onclick="approveManeuver()">Approve Maneuver</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:14px">Every spacecraft, <span style="color:var(--cyan)">fully instrumented</span></div>
+        <div class="satellite-cards" id="sat-cards"></div>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <div class="report-grid">
+        <div class="report-left">
+          <div class="eyebrow">AI Report Generator</div>
+          <h3>Mission-grade reports <span style="color:var(--cyan)">in one click</span></h3>
+          <p>Export collision risks, threat analysis, recommended actions, and a full safety assessment — formatted for both engineering review and executive summary.</p>
+          <div class="report-btns">
+            <button class="report-btn" onclick="alert('Report export wired to backend /reports/pdf endpoint')">📄 PDF</button>
+            <button class="report-btn" onclick="alert('Report export wired to backend /reports/csv endpoint')">📊 CSV</button>
+            <button class="report-btn" onclick="alert('Mission summary generated from decisions.jsonl')">📋 Mission Summary</button>
+          </div>
+        </div>
+        <div class="report-preview" id="report-preview">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">MISSION_BRIEF.pdf &nbsp;&nbsp;<span style="color:var(--moderate)">DRAFT</span></div>
+          <div class="rp-section">§1 EXECUTIVE SUMMARY</div>
+          <div>&nbsp;&nbsp;Fleet status: <span class="rp-safe">NOMINAL</span></div>
+          <div>&nbsp;&nbsp;Open conjunctions: <span class="rp-critical">17 (4 critical)</span></div>
+          <div>&nbsp;&nbsp;Recommended maneuvers: 12</div>
+          <br>
+          <div class="rp-section">§2 THREAT ANALYSIS</div>
+          <div>&nbsp;&nbsp;SAT-12 ↔ D-4721</div>
+          <div>&nbsp;&nbsp;Probability ......... <span class="rp-critical">8.2e-2</span></div>
+          <div>&nbsp;&nbsp;Closest approach ... 450 m</div>
+          <div>&nbsp;&nbsp;Closing velocity ... 14.6 km/s</div>
+          <br>
+          <div class="rp-section">§3 RECOMMENDED ACTIONS</div>
+          <div>&nbsp;&nbsp;<span class="rp-cyan">+1.8 km altitude burn @ T-06:00</span></div>
+          <div>&nbsp;&nbsp;Δv 4.2 m/s · fuel cost 0.6%</div>
+          <br>
+          <div class="rp-section">§4 SAFETY ASSESSMENT</div>
+          <div>&nbsp;&nbsp;Mission Safety Score: <span class="rp-safe">96.4 / 100</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ANALYTICS ════════ -->
+<div id="page-analytics" class="page">
+  <div class="analytics-page-inner">
+    <div class="eyebrow">Space Object Database</div>
+    <div class="analytics-title">34,000+ objects, <span class="accent">cataloged &amp; queryable</span></div>
+    <p class="analytics-desc">Full searchable catalog of every tracked object — satellites, debris, rocket bodies.</p>
+
+    <div class="catalog-section">
+      <div class="cat-table">
+        <div class="cat-toolbar">
+          <button class="cat-filter active" data-filter="ALL">ALL</button>
+          <button class="cat-filter" data-filter="LEO">LEO</button>
+          <button class="cat-filter" data-filter="MEO">MEO</button>
+          <button class="cat-filter" data-filter="GEO">GEO</button>
+          <input class="cat-search" id="cat-search" placeholder="Search object ID..." />
+        </div>
+        <div class="cat-cols"><span>Object ID</span><span>Size</span><span>Speed</span><span>Orbit</span><span>Threat</span><span>Last Seen</span></div>
+        <div id="cat-tbody"></div>
+      </div>
+    </div>
+
+    <div class="eyebrow">Analytics System</div>
+    <h2 style="font-size:28px;font-weight:700;margin-bottom:28px">Trends across the <span style="color:var(--cyan)">entire orbital regime</span></h2>
+    <div class="analytics-grid">
+      <div class="chart-card"><div class="chart-title">Collision Trends · 12mo</div><div class="chart-sub">Monthly conjunction events above threshold</div><canvas class="chart" id="trends-canvas" height="140"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Debris Growth</div><div class="chart-sub">Cumulative tracked objects by month</div><canvas class="chart" id="growth-canvas" height="140"></canvas></div>
+    </div>
+
+    <div class="eyebrow">Priority Alert Center</div>
+    <h2 style="font-size:28px;font-weight:700;margin-bottom:20px">Critical events, <span style="color:var(--cyan)">surfaced instantly</span></h2>
+    <div class="alerts-grid" id="alerts-grid">
+      <div class="alert-item crit"><div class="alert-left"><div class="alert-dot" style="background:var(--critical)"></div><div><div style="font-size:10px;color:var(--critical);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">High-speed debris threat</div><div class="alert-title">SAT-12 ↔ D-4721</div><div class="alert-sub">ETA · 18h</div></div></div><span class="alert-arrow">›</span></div>
+      <div class="alert-item mod"><div class="alert-left"><div class="alert-dot" style="background:var(--moderate)"></div><div><div style="font-size:10px;color:var(--moderate);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">High-density orbit region</div><div class="alert-title">Cluster near 770 km LEO</div><div class="alert-sub">ETA · Active</div></div></div><span class="alert-arrow">›</span></div>
+      <div class="alert-item mod"><div class="alert-left"><div class="alert-dot" style="background:var(--moderate)"></div><div><div style="font-size:10px;color:var(--moderate);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Orbit separation affected</div><div class="alert-title">ONEWEB-0214 drift +0.4°</div><div class="alert-sub">ETA · 12h</div></div></div><span class="alert-arrow">›</span></div>
+      <div class="alert-item crit"><div class="alert-left"><div class="alert-dot" style="background:var(--critical)"></div><div><div style="font-size:10px;color:var(--critical);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Non-nominal data quality</div><div class="alert-title">LEGACY-77 telemetry loss</div><div class="alert-sub">ETA · 7h</div></div></div><span class="alert-arrow">›</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CONSOLE ════════ -->
+<div id="page-console" class="page">
+  <div class="console-layout">
+    <div class="console-left">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:13px;font-weight:600">MISSION CONTROL</span>
+          <div class="live-badge"><span class="live-dot"></span><span id="agent-status-text">LIVE · CONNECTING</span></div>
+        </div>
+      </div>
+      <div class="console-nav">
+        <button class="cnav-btn active">Overview</button>
+        <button class="cnav-btn">Satellites</button>
+        <button class="cnav-btn">Debris</button>
+        <button class="cnav-btn">Predictions</button>
+        <button class="cnav-btn">AI Insights</button>
+        <button class="cnav-btn">Reports</button>
+      </div>
+      <div class="console-stat-grid">
+        <div class="cstat"><div class="cstat-val" style="color:var(--cyan)" id="c-sats">8,742</div><div class="cstat-lbl">Active Satellites</div></div>
+        <div class="cstat"><div class="cstat-val" style="color:var(--text)" id="c-debris">34,219</div><div class="cstat-lbl">Tracked Debris</div></div>
+        <div class="cstat"><div class="cstat-val" style="color:var(--moderate)" id="c-highrisk">17</div><div class="cstat-lbl">High-Risk Events</div></div>
+        <div class="cstat"><div class="cstat-val" style="color:var(--critical)" id="c-warnings">4</div><div class="cstat-lbl">Collision Warnings</div></div>
+        <div class="cstat"><div class="cstat-val" style="color:var(--safe)" id="c-maneuvers">12</div><div class="cstat-lbl">Maneuvers</div></div>
+      </div>
+
+      <div class="inject-zone">
+        <button class="inject-btn" id="inject-btn-2" onclick="injectConjunction()">⚡ Inject Critical Conjunction (Demo)</button>
+      </div>
+
+      <div class="console-globe-wrap">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:12px">
+          <span>LIVE ORBITAL MAP</span>
+          <div class="globe-legend" style="margin-bottom:0;gap:12px">
+            <div class="leg-item"><div class="leg-dot" style="background:var(--safe)"></div>Safe</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--moderate)"></div>Mod</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--critical)"></div>High</div>
+          </div>
+        </div>
+        <canvas id="console-canvas"></canvas>
+        <div class="closest-badge"><div class="closest-val" id="c-closest">450 m · 18h 04m</div><div class="closest-sub">Closest approach</div></div>
+      </div>
+
+      <div class="conj-table-console">
+        <div class="ctc-header"><span>Satellite</span><span>Debris</span><span>Probability</span><span>Closest</span><span>Risk</span><span>Action</span></div>
+        <div id="console-tbody"></div>
+      </div>
+    </div>
+
+    <div class="console-right">
+      <div class="safety-score-card">
+        <div class="ss-label">Mission Safety Score</div>
+        <div class="ss-val" style="font-size:44px" id="c-score">96.4 <span style="font-size:20px;color:var(--text2)">/ 100</span></div>
+        <div class="ss-sub" id="c-score-sub">All systems nominal</div>
+        <div class="ss-bar" style="margin-top:10px"><div class="ss-fill" id="c-score-fill" style="width:96.4%"></div></div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-label">AI Insight</div>
+        <div class="insight-text" id="c-insight">Debris <strong>D-4721</strong> will pass within <em>450 m</em> of SAT-12 in 18h. Recommended: <em>+1.8 km altitude burn.</em></div>
+        <button class="approve-btn" onclick="approveManeuver()">Approve Maneuver</button>
+      </div>
+
+      <div class="risk-chart-card"><div class="rcc-title">Risk Index · Past 24h</div><canvas id="risk-chart-canvas" height="120"></canvas></div>
+      <div class="debris-density-card"><div class="ddc-title">Debris Density · LEO</div><canvas id="density-chart-canvas" height="120"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   CONFIG — point this at your running FastAPI backend
+   ════════════════════════════════════════════════════════════ */
+const API = 'http://localhost:8000';
+let USE_LIVE_API = true;   // set false to run fully on mock data (no backend needed)
+
+/* ════════════════════════════════════════════════════════════
+   MOCK DATA — used as fallback / initial render before SSE connects
+   ════════════════════════════════════════════════════════════ */
+const MOCK_CONJUNCTIONS = [
+  {sat:'STARLINK-1043', deb:'D-4721', prob:8.2, dist:450, risk:'CRITICAL', action:'+1.8 km burn'},
+  {sat:'ONEWEB-0214',   deb:'D-7765', prob:6.3, dist:580, risk:'CRITICAL', action:'−0.9 km burn'},
+  {sat:'SENTINEL-2B',   deb:'D-9182', prob:4.1, dist:720, risk:'MODERATE', action:'Monitor'},
+  {sat:'GPS-IIIA-05',   deb:'D-1029', prob:2.7, dist:980, risk:'MODERATE', action:'Re-eval 6h'},
+  {sat:'ISS-ZARYA',     deb:'D-3318', prob:1.1, dist:1200,risk:'SAFE',     action:'No action'},
+  {sat:'CARTOSAT-3',    deb:'D-5544', prob:0.8, dist:1450,risk:'SAFE',     action:'No action'},
+];
+
+const MOCK_OBJECTS = [
+  {id:'D-4721', size:'12 cm', speed:'7.8 km/s', orbit:'LEO', threat:'CRITICAL', seen:'2m ago'},
+  {id:'D-9182', size:'4 cm',  speed:'7.5 km/s', orbit:'LEO', threat:'MODERATE', seen:'8m ago'},
+  {id:'D-3318', size:'22 cm', speed:'3.1 km/s', orbit:'GEO', threat:'SAFE',     seen:'7s ago'},
+  {id:'D-7765', size:'8 cm',  speed:'7.6 km/s', orbit:'LEO', threat:'CRITICAL', seen:'4m ago'},
+  {id:'D-1029', size:'15 cm', speed:'3.9 km/s', orbit:'MEO', threat:'MODERATE', seen:'12m ago'},
+];
+
+const SATELLITES = [
+  {id:'#SAT-1043',name:'STARLINK-1043',alt:'550 km',vel:'7.6 km/s',health:94},
+  {id:'#SAT-2B',  name:'SENTINEL-2B',  alt:'786 km',vel:'7.4 km/s',health:90},
+  {id:'#ISS-01',  name:'ISS-ZARYA',    alt:'408 km',vel:'7.85 km/s',health:99},
+  {id:'#GPS-05',  name:'GPS-IIIA-05',  alt:'20,180 km',vel:'3.87 km/s',health:97},
+  {id:'#GOES-18', name:'GOES-18',      alt:'35,786 km',vel:'3.07 km/s',health:100},
+  {id:'#CSAT-3',  name:'CARTOSAT-3',   alt:'509 km',vel:'7.61 km/s',health:88},
+];
+
+let liveStats = {sats:8742, debris:34219, highrisk:17, warnings:4, maneuvers:12, score:96.4};
+
+/* ════════════════════════════════════════════════════════════
+   PAGE NAVIGATION
+   ════════════════════════════════════════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const order=['mission','tracking','predictions','aiagent','analytics'];
+  const idx=order.indexOf(id);
+  const btns=document.querySelectorAll('.nav-link');
+  if(idx>=0) btns[idx].classList.add('active');
+  window.scrollTo(0,0);
+
+  if(id==='tracking')    setTimeout(()=>{drawGlobe('tracking-canvas',600,380,GLOBE_OBJECTS); renderTrackingTable();},50);
+  if(id==='predictions') setTimeout(()=>{drawDonut(); drawTimeline(); renderPredTable();},50);
+  if(id==='aiagent')     setTimeout(renderSatCards,50);
+  if(id==='analytics')   setTimeout(()=>{drawAnalyticsCharts(); renderCatTable();},50);
+  if(id==='console')     setTimeout(()=>{drawGlobe('console-canvas',400,280,GLOBE_OBJECTS); drawConsoleCharts(); renderConsoleTable();},50);
+}
+
+/* ════════════════════════════════════════════════════════════
+   TABLE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+function riskPill(risk){return `<div class="risk-pill ${risk}">${risk}</div>`;}
+
+function renderTrackingTable(){
+  const body=document.getElementById('tracking-tbody');
+  body.innerHTML = MOCK_OBJECTS.map(o=>`
+    <div class="tbl-row">
+      <span style="color:var(--cyan)">${o.id}</span><span>${o.size}</span><span>${o.speed}</span>
+      <span>${o.orbit}</span><span>${riskPill(o.threat)}</span><span style="color:var(--text3)">${o.seen}</span>
+    </div>`).join('');
+}
+
+function renderPredTable(){
+  const body=document.getElementById('pred-tbody');
+  body.innerHTML = MOCK_CONJUNCTIONS.map(c=>{
+    const probColor = c.risk==='CRITICAL'?'var(--critical)':c.risk==='MODERATE'?'var(--moderate)':'var(--safe)';
+    return `<div class="conj-row">
+      <span style="color:var(--text)">${c.sat}</span><span style="color:var(--text2)">${c.deb}</span>
+      <span style="color:${probColor};font-weight:700">${c.prob.toFixed(1)}%</span><span>${c.dist}</span>
+      <span>${riskPill(c.risk)}</span><span style="color:var(--text2);font-size:11px">${c.action}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('pred-count').textContent = MOCK_CONJUNCTIONS.length+' events';
+}
+
+function renderConsoleTable(){
+  const body=document.getElementById('console-tbody');
+  body.innerHTML = MOCK_CONJUNCTIONS.map(c=>{
+    const probColor = c.risk==='CRITICAL'?'var(--critical)':c.risk==='MODERATE'?'var(--moderate)':'var(--safe)';
+    return `<div class="ctc-row" data-key="${c.sat}-${c.deb}">
+      <span style="color:var(--text)">${c.sat}</span><span style="color:var(--text2)">${c.deb}</span>
+      <span style="color:${probColor}">${c.prob.toFixed(1)}%</span><span>${c.dist} m</span>
+      <span>${riskPill(c.risk)}</span><span style="color:var(--text2);font-size:10px">Inspect</span>
+    </div>`;
+  }).join('');
+}
+
+function renderCatTable(filter='ALL'){
+  const body=document.getElementById('cat-tbody');
+  const list = filter==='ALL' ? MOCK_OBJECTS : MOCK_OBJECTS.filter(o=>o.orbit===filter);
+  body.innerHTML = list.map(o=>`
+    <div class="cat-row">
+      <span style="color:var(--cyan)">${o.id}</span><span>${o.size}</span><span>${o.speed}</span>
+      <span>${o.orbit}</span><span>${riskPill(o.threat)}</span><span style="color:var(--text3)">${o.seen}</span>
+    </div>`).join('');
+}
+
+function renderSatCards(){
+  const wrap=document.getElementById('sat-cards');
+  wrap.innerHTML = SATELLITES.map(s=>{
+    const color = s.health>=95?'var(--safe)':s.health>=85?'var(--moderate)':'var(--critical)';
+    return `<div class="sat-card">
+      <div class="sat-id">${s.id}</div><div class="sat-name">${s.name}</div>
+      <div class="sat-row"><span class="sat-row-label">Altitude</span><span class="sat-row-val">${s.alt}</span></div>
+      <div class="sat-row"><span class="sat-row-label">Velocity</span><span class="sat-row-val">${s.vel}</span></div>
+      <div class="sat-health">
+        <div class="sat-health-label"><span>Health</span><span>${s.health}%</span></div>
+        <div class="health-bar"><div class="health-fill" style="width:${s.health}%;background:${color}"></div></div>
+      </div>
+      <div class="sat-btns"><button class="sat-btn">Details</button><button class="sat-btn">Trajectory</button></div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════
+   CATALOG FILTER + SEARCH
+   ════════════════════════════════════════════════════════════ */
+document.addEventListener('click', e=>{
+  if(e.target.classList.contains('cat-filter')){
+    document.querySelectorAll('.cat-filter').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    renderCatTable(e.target.dataset.filter);
+  }
+  if(e.target.classList.contains('cnav-btn')){
+    document.querySelectorAll('.cnav-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+});
+document.addEventListener('input', e=>{
+  if(e.target.id==='cat-search'){
+    const q=e.target.value.toLowerCase();
+    document.querySelectorAll('#cat-tbody .cat-row').forEach(row=>{
+      row.classList.toggle('hidden', !row.textContent.toLowerCase().includes(q));
+    });
+  }
+});
+
+/* ════════════════════════════════════════════════════════════
+   DEMO INJECT — calls backend if available, else simulates locally
+   ════════════════════════════════════════════════════════════ */
+async function injectConjunction(){
+  const btns=[document.getElementById('inject-btn'),document.getElementById('inject-btn-2')];
+  btns.forEach(b=>{if(b){b.disabled=true; b.textContent='⏳ Injecting...';}});
+
+  let success=false;
+  if(USE_LIVE_API){
+    try{
+      const res = await fetch(`${API}/inject-conjunction`,{method:'POST'});
+      if(res.ok) success=true;
+    }catch(e){ /* backend not running — fall through to local simulation */ }
+  }
+
+  setTimeout(()=>{
+    simulateInjectedEvent();
+    btns.forEach(b=>{if(b){b.textContent='✅ Injected — agent responding...';}});
+  }, success?300:900);
+
+  setTimeout(()=>{
+    btns.forEach(b=>{if(b){b.disabled=false; b.textContent='⚡ Inject Critical Conjunction (Demo)';}});
+  }, 4500);
+}
+
+function simulateInjectedEvent(){
+  const newEvent = {sat:'RISAT-2BR1', deb:'COSMOS-2251-DEB', prob:23.7, dist:1800, risk:'CRITICAL', action:'Emergency burn'};
+  MOCK_CONJUNCTIONS.unshift(newEvent);
+  liveStats.warnings++; liveStats.highrisk++; liveStats.maneuvers++;
+  updateAllStats();
+  renderConsoleTable();
+  renderPredTable();
+  showToast(newEvent);
+
+  // flash the new row
+  setTimeout(()=>{
+    const row=document.querySelector(`.ctc-row[data-key="${newEvent.sat}-${newEvent.deb}"]`);
+    if(row) row.classList.add('injected');
+  },50);
+
+  // update AI insight text everywhere
+  const text = `<strong>CRITICAL:</strong> ISRO <strong>RISAT-2BR1</strong> will approach within <em>1.8km</em> of COSMOS-2251-DEB at 14.2km/s. Collision probability <em>23.7%</em>. Recommended: emergency avoidance burn within 6 hours.`;
+  document.getElementById('ai-insight-text').innerHTML = text;
+  document.getElementById('c-insight').innerHTML = text;
+  document.getElementById('approve-btn').disabled=false;
+}
+
+function showToast(adv){
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<div class="toast-title">🚨 CRITICAL CONJUNCTION DETECTED</div>
+    <div class="toast-body">${adv.sat} ↔ ${adv.deb}<br>${adv.dist}m approach · ${adv.prob}% collision probability<br>Agent autonomously filed advisory in &lt;3s</div>`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),7000);
+}
+
+function approveManeuver(){
+  alert('Maneuver approved. In production this calls POST /advisories/{id}/approve and commands the satellite avoidance burn.');
+}
+
+function updateAllStats(){
+  const fmt=n=>n.toLocaleString();
+  ['hp-sats','c-sats'].forEach(id=>document.getElementById(id).textContent=fmt(liveStats.sats));
+  ['hp-debris','c-debris'].forEach(id=>document.getElementById(id).textContent=fmt(liveStats.debris));
+  ['hp-highrisk','c-highrisk'].forEach(id=>document.getElementById(id).textContent=liveStats.highrisk);
+  ['hp-warnings','c-warnings'].forEach(id=>document.getElementById(id).textContent=liveStats.warnings);
+  ['hp-maneuvers','c-maneuvers'].forEach(id=>document.getElementById(id).textContent=liveStats.maneuvers);
+}
+
+/* ════════════════════════════════════════════════════════════
+   LIVE SSE CONNECTION — connects to your FastAPI backend
+   Falls back silently to mock/local mode if backend isn't running
+   ════════════════════════════════════════════════════════════ */
+function connectSSE(){
+  if(!USE_LIVE_API) return;
+  try{
+    const es = new EventSource(`${API}/stream`);
+    es.onopen = ()=>{
+      document.getElementById('agent-status-text').textContent='LIVE · CONNECTED';
+    };
+    es.onmessage = (e)=>{
+      try{
+        const event = JSON.parse(e.data);
+        if(event.type==='advisory'){
+          const a=event.data;
+          MOCK_CONJUNCTIONS.unshift({sat:a.satellite_name,deb:a.debris_name,prob:a.collision_probability_pct,dist:a.min_distance_km*1000,risk:a.risk_level,action:a.recommended_action?.slice(0,20)||'See advisory'});
+          renderConsoleTable(); renderPredTable();
+          if(a.risk_level==='CRITICAL') showToast({sat:a.satellite_name,deb:a.debris_name,dist:Math.round(a.min_distance_km*1000),prob:a.collision_probability_pct});
+        }
+      }catch(err){}
+    };
+    es.onerror = ()=>{
+      document.getElementById('agent-status-text').textContent='LIVE · DEMO MODE (offline)';
+      es.close();
+    };
+  }catch(e){
+    document.getElementById('agent-status-text').textContent='LIVE · DEMO MODE (offline)';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   CANVAS: ORBITAL GLOBE
+   ════════════════════════════════════════════════════════════ */
+function drawGlobe(canvasId,w,h,objects){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  canvas.width=canvas.offsetWidth||w; canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  const cx=canvas.width/2, cy=canvas.height/2;
+  const R=Math.min(cx,cy)*0.52;
+
+  ctx.fillStyle='#030812'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<80;i++){
+    ctx.beginPath();
+    ctx.arc(Math.random()*canvas.width,Math.random()*canvas.height,Math.random()*1.2,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.4+0.1})`; ctx.fill();
+  }
+
+  const glow=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.6);
+  glow.addColorStop(0,'rgba(0,100,180,0.06)'); glow.addColorStop(1,'transparent');
+  ctx.fillStyle=glow; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ['rgba(0,212,255,0.08)','rgba(0,212,255,0.06)','rgba(0,212,255,0.04)'].forEach((c,i)=>{
+    ctx.beginPath();
+    ctx.ellipse(cx,cy,R*(1.35+i*0.22),R*(0.38+i*0.06),0,0,Math.PI*2);
+    ctx.strokeStyle=c; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  const earth=ctx.createRadialGradient(cx-R*0.2,cy-R*0.15,R*0.05,cx,cy,R);
+  earth.addColorStop(0,'#1a4a7a'); earth.addColorStop(0.5,'#0d2a50'); earth.addColorStop(1,'#061828');
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle=earth; ctx.fill();
+  ctx.strokeStyle='rgba(0,212,255,0.15)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.clip();
+  for(let i=-2;i<=2;i++){
+    ctx.beginPath(); ctx.moveTo(cx+i*R/2,cy-R); ctx.lineTo(cx+i*R/2,cy+R);
+    ctx.strokeStyle='rgba(0,212,255,0.06)'; ctx.lineWidth=0.5; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-R,cy+i*R/2); ctx.lineTo(cx+R,cy+i*R/2); ctx.stroke();
+  }
+  ctx.restore();
+
+  objects.forEach(o=>{
+    const ox=cx+R*o.ox*1.35, oy=cy+R*o.oy*0.38;
+    ctx.beginPath(); ctx.arc(ox,oy,o.r||4,0,Math.PI*2); ctx.fillStyle=o.c; ctx.fill();
+    if(o.glow){
+      const g=ctx.createRadialGradient(ox,oy,0,ox,oy,12);
+      g.addColorStop(0,o.glow+'55'); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(ox,oy,12,0,Math.PI*2); ctx.fill();
+    }
+  });
+}
+
+const GLOBE_OBJECTS=[
+  {ox:.5,oy:-.6,r:5,c:'#00d4ff',glow:'#00d4ff'},{ox:-.3,oy:.5,r:5,c:'#00d4ff',glow:'#00d4ff'},
+  {ox:.7,oy:.3,r:4,c:'#00d4ff'},{ox:-.7,oy:-.2,r:4,c:'#00d4ff'},
+  {ox:.8,oy:-.1,r:6,c:'#00d4ff',glow:'#00d4ff'},{ox:-.1,oy:.7,r:3,c:'#8b949e'},
+  {ox:.3,oy:-.4,r:3,c:'#ff3b3b',glow:'#ff3b3b'},{ox:-.5,oy:.2,r:3,c:'#ff3b3b'},
+  {ox:.6,oy:.6,r:3,c:'#f5a623',glow:'#f5a623'},{ox:-.4,oy:-.6,r:2,c:'#8b949e'},
+  {ox:.1,oy:.5,r:2,c:'#8b949e'},{ox:.4,oy:.1,r:3,c:'#ff3b3b'},
+];
+
+/* ════════════════════════════════════════════════════════════
+   CANVAS: CHARTS
+   ════════════════════════════════════════════════════════════ */
+function drawDonut(){
+  const c=document.getElementById('donut-canvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  const cx=80,cy=80,R=64,r=42;
+  const segs=[{v:.78,c:'#00e676'},{v:.17,c:'#f5a623'},{v:.05,c:'#ff3b3b'}];
+  ctx.clearRect(0,0,160,160);
+  let a=-Math.PI/2;
+  segs.forEach(s=>{
+    const end=a+s.v*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,a,end); ctx.closePath();
+    ctx.fillStyle=s.c+'33'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,R,a,end); ctx.arc(cx,cy,r,end,a,true); ctx.closePath();
+    ctx.fillStyle=s.c; ctx.fill();
+    a=end;
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle='#0a1628'; ctx.fill();
+}
+
+function drawTimeline(){
+  const c=document.getElementById('timeline-canvas'); if(!c) return;
+  c.width=c.offsetWidth||280; c.height=120;
+  drawLineChart('timeline-canvas',[2,4,3,7,5,9,6,11,8,14,10,13,12,9,11],'#00d4ff');
+}
+
+function drawLineChart(id,pts,color){
+  const c=document.getElementById(id); if(!c) return;
+  c.width=c.offsetWidth||400; c.height=c.height||140;
+  const ctx=c.getContext('2d'); const W=c.width,H=c.height,pad=20;
+  const mx=Math.max(...pts), mn=Math.min(...pts);
+  ctx.clearRect(0,0,W,H);
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,color+'44'); grad.addColorStop(1,color+'00');
+  ctx.beginPath();
+  pts.forEach((v,i)=>{
+    const x=pad+i*(W-pad*2)/(pts.length-1), y=H-pad-((v-mn)/(mx-mn||1))*(H-pad*2);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(W-pad,H); ctx.lineTo(pad,H); ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath();
+  pts.forEach((v,i)=>{
+    const x=pad+i*(W-pad*2)/(pts.length-1), y=H-pad-((v-mn)/(mx-mn||1))*(H-pad*2);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  pts.forEach((v,i)=>{
+    const x=pad+i*(W-pad*2)/(pts.length-1), y=H-pad-((v-mn)/(mx-mn||1))*(H-pad*2);
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+  });
+}
+
+function drawBarChart(id,pts,color){
+  const c=document.getElementById(id); if(!c) return;
+  c.width=c.offsetWidth||400; c.height=c.height||140;
+  const ctx=c.getContext('2d'); const W=c.width,H=c.height,pad=20;
+  const mx=Math.max(...pts); const bw=(W-pad*2)/pts.length*0.7;
+  ctx.clearRect(0,0,W,H);
+  pts.forEach((v,i)=>{
+    const x=pad+i*(W-pad*2)/pts.length+(W-pad*2)/pts.length*0.15;
+    const bh=(v/mx)*(H-pad*2); const y=H-pad-bh;
+    ctx.fillStyle=color+'55'; ctx.fillRect(x,y,bw,bh);
+    ctx.fillStyle=color+'99'; ctx.fillRect(x,y,bw,4);
+  });
+}
+
+function drawAnalyticsCharts(){
+  drawLineChart('trends-canvas',[12,18,15,22,19,28,24,31,27,35,30,38],'#00d4ff');
+  drawBarChart('growth-canvas',[28000,29200,30100,31000,32500,33200,34000,34800,35600,36200,36800,37500],'#00d4ff');
+}
+
+function drawConsoleCharts(){
+  const rc=document.getElementById('risk-chart-canvas');
+  if(rc){ rc.height=120; drawLineChart('risk-chart-canvas',[28,35,30,42,38,45,50,44,55,48,60,52,58,50,55],'#00d4ff'); }
+  const dc=document.getElementById('density-chart-canvas');
+  if(dc){ dc.height=120; drawBarChart('density-chart-canvas',[1100,1200,1150,1300,1250,1400,1350,1420,1380,1450,1400,1380,1420,1400,1390,1410,1430,1420,1400,1450,1420,1430,1410,1440],'#00a8cc'); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════════════════ */
+window.addEventListener('resize',()=>{
+  if(document.getElementById('page-mission').classList.contains('active')) drawGlobe('hero-canvas',520,520,GLOBE_OBJECTS);
+  if(document.getElementById('page-tracking').classList.contains('active')) drawGlobe('tracking-canvas',600,380,GLOBE_OBJECTS);
+  if(document.getElementById('page-console').classList.contains('active')) drawGlobe('console-canvas',400,280,GLOBE_OBJECTS);
+});
+
+setTimeout(()=>{
+  drawGlobe('hero-canvas',520,520,GLOBE_OBJECTS);
+  renderCatTable();
+  connectSSE();
+},100);
+</script>
+</body>
+</html>
